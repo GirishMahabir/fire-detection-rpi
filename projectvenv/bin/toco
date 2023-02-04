@@ -1,4 +1,4 @@
-#!/home/girishm/fire-detection-rpi/bin/python3
+#!/home/girishm/fire-detection-rpi/projectvenv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
