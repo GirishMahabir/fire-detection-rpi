@@ -6,9 +6,10 @@ from keras.models import load_model
 model = load_model('DATASET/Models/fire.h5')
 
 # Define the function to process each frame
-
+firelist=['FIRE',"NOT A FIRE"]
 
 def process_frame(frame):
+    
     # Preprocess the frame
     resized = cv2.resize(frame, (48, 86))
     normalized = resized / 255.0
@@ -16,12 +17,7 @@ def process_frame(frame):
 
     # Use the model to predict whether there is fire in the frame
     prediction = model.predict(reshaped)
-    print(prediction)
-    if prediction[0][0] > 0.5:
-        label = "No Fire"
-    else:
-        label = "Fire"
-    # Draw the label on the frame
+    label=firelist[np.argmax(prediction)]
     cv2.putText(frame, label, (50, 50),
                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
     return frame
