@@ -5,3 +5,7 @@ keras
 imageai
 matplotlib
 sklearn
+mediapipe
+pandas
+protobuf
+object_detection
