@@ -9,3 +9,5 @@ mediapipe
 pandas
 protobuf
 object_detection
+slack_sdk
+toml

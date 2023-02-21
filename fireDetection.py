@@ -21,17 +21,13 @@ def process_frame(frame):
     print(
         f"Prediction is: {prediction} and the label is: {[np.argmax(prediction)]}")
     label = firelist[np.argmax(prediction)]
-    # if prediction[0][0] > 1.5:
-    #     label = "Fire"
-    # else:
-    #     label = "No Fire"
     cv2.putText(frame, label, (50, 50),
                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
     return frame
 
 
 # Start capturing the camera feed
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(0)
 
 while True:
     ret, frame = cap.read()
