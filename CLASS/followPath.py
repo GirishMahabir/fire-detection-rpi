@@ -3,6 +3,8 @@ from gpiozero import LineSensor
 from motorControl import MotorControl
 from ultrasonicControl import UltrasonicData
 
+import time
+
 # Define the pins for the IR sensors
 left_pin = 17
 right_pin = 27
@@ -62,8 +64,9 @@ while True:
     
     # Check for obstacles
     obstacle_distance = ultrasonic_sensor.get_distance()
-    if obstacle_distance < 20:
+    if obstacle_distance < 10:
         stop()
+        time.sleep(1)
         reverse()
         if left_state == 0 and right_state == 0:
             forward()
