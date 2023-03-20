@@ -4,45 +4,37 @@ from keras.models import load_model
 
 
 class FireDetection:
-    def __init__(self, model, frame):
-        self.frame = frame
-        self.model = model
-        self.firelist = ["NOT A FIRE", "FIRE"]
+    def __init__(self, model_path):
+        self.model = load_model(model_path)
+        self.firelist = ["FIRE", "NOT A FIRE"]
 
-    def process_frame(self):
+    def process_frame(self, frame):
         # Preprocess the frame
         resized = cv2.resize(frame, (86, 48))
 
         # Use the model to predict whether there is fire in the frame
-        prediction = model.predict(np.expand_dims(resized, axis=0))
-        print(
-            f"Prediction is: {prediction} and the label is: {[np.argmax(prediction)]}")
-
+        prediction = self.model.predict(np.expand_dims(resized, axis=0))
         label = self.firelist[np.argmax(prediction)]
 
-        cv2.putText(frame, label, (50, 50),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-
         if label == "FIRE":
-            return "fire detected"
-
-        return frame
+            return True
+        else:
+            return False
 
 
 if __name__ == "__main__":
     # Start capturing the camera feed
     cap = cv2.VideoCapture(0)
-    # Load the trained model
-    model = load_model('DATASET/Models/candle.h5')
 
-    while True:
-        ret, frame = cap.read()
-        # Initialize the class
-        fire = FireDetection(model, frame)
-        if ret:
-            processed_frame = fire.process_frame()
-            cv2.imshow("Fire Detection", processed_frame)
+    # Initialize the class
+    fire = FireDetection("../DATASET/Models/candle.h5")
 
-            # Press q to quit
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+    try:
+        while True:
+            ret, frame = cap.read()
+            # if frame is available, process it:
+            if ret:
+                fire.process_frame(frame)
+    except KeyboardInterrupt:
+        # Release the camera
+        cap.release()
