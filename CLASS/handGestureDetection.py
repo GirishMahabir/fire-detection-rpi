@@ -1,7 +1,6 @@
 import cv2
 import mediapipe as mp
 
-
 class HandGestureIdentification:
     # Initialize the class
     def __init__(self):
