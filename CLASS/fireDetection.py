@@ -27,14 +27,14 @@ if __name__ == "__main__":
     cap = cv2.VideoCapture(0)
 
     # Initialize the class
-    fire = FireDetection("../DATASET/Models/candle.h5")
+    fire = FireDetection("DATASET/Models/candle.h5")
 
     try:
         while True:
             ret, frame = cap.read()
             # if frame is available, process it:
             if ret:
-                fire.process_frame(frame)
+                print(fire.process_frame(frame))
     except KeyboardInterrupt:
         # Release the camera
         cap.release()

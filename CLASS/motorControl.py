@@ -9,7 +9,7 @@ class MotorControl:
         self.in3 = in3
         self.in4 = in4
         self.enb = enb
-        self.speed = 50
+        self.speed = 100
 
         GPIO.setup(self.ena, GPIO.OUT)
         GPIO.setup(self.in1, GPIO.OUT)
@@ -30,12 +30,14 @@ class MotorControl:
         self.motor_two.start(self.speed)
 
     def forward(self):
+        self.set_speed(self.speed)
         GPIO.output(self.in1, GPIO.HIGH)
         GPIO.output(self.in2, GPIO.LOW)
         GPIO.output(self.in3, GPIO.HIGH)
         GPIO.output(self.in4, GPIO.LOW)
 
     def reverse(self):
+        self.set_speed(self.speed)
         GPIO.output(self.in1, GPIO.LOW)
         GPIO.output(self.in2, GPIO.HIGH)
         GPIO.output(self.in3, GPIO.LOW)
@@ -82,16 +84,16 @@ if __name__ == '__main__':
 
     # TEST MOTOR CONTROL
     motor_control.forward()
-    sleep(10)
+    sleep(2)
     motor_control.reverse()
-    sleep(10)
+    sleep(2)
 
     # TEST MOTOR DIRECTION
-    motor_control.set_speed(50)
-    motor_control.forward()
-    sleep(10)
-    motor_control.right()
-    sleep(10)
-    motor_control.left()
-    sleep(10)
-    motor_control.stop()
+    # motor_control.set_speed(50)
+    # motor_control.forward()
+    # sleep(10)
+    # motor_control.right()
+    # sleep(10)
+    # motor_control.left()
+    # sleep(10)
+    # motor_control.stop()

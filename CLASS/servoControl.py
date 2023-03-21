@@ -1,7 +1,6 @@
 from gpiozero import Servo
 from time import sleep
 
-
 class ServoControl:
     def __init__(self, pin, min, max):
         self.servo = Servo(pin, min_pulse_width=min, max_pulse_width=max)
