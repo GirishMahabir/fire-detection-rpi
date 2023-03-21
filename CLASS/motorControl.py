@@ -11,7 +11,6 @@ class MotorControl:
         self.enb = enb
         self.speed = 50
 
-        GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.ena, GPIO.OUT)
         GPIO.setup(self.in1, GPIO.OUT)
         GPIO.setup(self.in2, GPIO.OUT)
@@ -45,7 +44,6 @@ class MotorControl:
     def stop(self):
         self.motor_one.stop()
         self.motor_two.stop()
-        GPIO.cleanup()
 
     def right(self):
         GPIO.output(self.in1, GPIO.LOW)
@@ -69,6 +67,8 @@ class MotorControl:
 
 
 if __name__ == '__main__':
+    # SETUP GPIO
+    GPIO.setmode(GPIO.BCM)
     # DEFINE PINS
     ENA = 25
     IN1 = 24

@@ -18,7 +18,9 @@ class SlackMessage:
         self.message = message
         self.level = level
 
-    def send(self):
+    def send(self, message=None, level=None):
+        self.message = message if message else self.message
+        self.level = level if level else self.level
         payload = {
             "attachments": [
                 {

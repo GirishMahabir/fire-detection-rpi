@@ -5,7 +5,6 @@ class UltrasonicData:
     def __init__(self, echo, trigger):
         self.echo = echo
         self.trigger = trigger
-        GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.echo, GPIO.IN)
         GPIO.setup(self.trigger, GPIO.OUT)
 
@@ -36,11 +35,12 @@ class UltrasonicData:
     
         return distance
     
-    def clean(self):
-        GPIO.cleanup()
+    # def clean(self):
+    #     GPIO.cleanup()
 
  
 if __name__ == '__main__':
+    GPIO.setmode(GPIO.BCM)
     #set GPIO Pins
     GPIO_TRIGGER = 21
     GPIO_ECHO = 20

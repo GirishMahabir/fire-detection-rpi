@@ -1,7 +1,7 @@
 import cv2
 import mediapipe as mp
 
-class HandGestureIdentification:
+class HandGestureDetection:
     # Initialize the class
     def __init__(self):
         self.mp_hands = mp.solutions.hands
@@ -39,7 +39,7 @@ class HandGestureIdentification:
 if __name__ == '__main__':
     # Initialize Frame
     capture = cv2.VideoCapture(0)
-    screen = HandGestureIdentification()
+    screen = HandGestureDetection()
 
     try:
         while True:
