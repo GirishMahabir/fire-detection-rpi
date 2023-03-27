@@ -51,26 +51,28 @@ OBSTACLE_DETECTED = False
 def detect_obs():
     while True:
         if ULTRASONIC_SENSOR.get_distance() <= 10:
+            # OBSTACLE_DETECTED = True
             MOTOR_CONTROL.set_speed(0)
             time.sleep(HAND_GESTURE_STOP_SECONDS)
             detect_obs()
+        else:
+            MOTOR_CONTROL.set_speed(MOTOR_NORMAL_SPEED)
+
         time.sleep(1)
 
 def motor_speed():
     while True:
         left_detect  = int(left_sensor.value)
         right_detect = int(right_sensor.value)
-        ## Stage 1
+
         if left_detect == 0 and right_detect == 0:
             MOTOR_CONTROL.forward()
-            MOTOR_CONTROL.set_speed(MOTOR_NORMAL_SPEED)    
-        ## Stage 2
+
         if left_detect == 0 and right_detect == 1:
-            MOTOR_CONTROL.set_speed(MOTOR_NORMAL_SPEED)    
             MOTOR_CONTROL.right()
             time.sleep(0.15)
+            
         if left_detect == 1 and right_detect == 0:
-            MOTOR_CONTROL.set_speed(MOTOR_NORMAL_SPEED)
             MOTOR_CONTROL.left()
             time.sleep(0.15)
 
