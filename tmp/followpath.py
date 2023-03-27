@@ -13,7 +13,7 @@ right_sensor= LineSensor(RIGHT_PIN)
 
 # Create an instance of the motor control class
 MOTOR_CONTROL = MotorControl(24, 23, 25, 26, 19, 13)
-MOTOR_CONTROL.set_speed(70)
+MOTOR_CONTROL.set_speed(65)
 
 def motor_speed():
     left_detect  = int(left_sensor.value)
@@ -26,11 +26,12 @@ def motor_speed():
     ## Stage 2
     if left_detect == 0 and right_detect == 1:
         MOTOR_CONTROL.right()
-        sleep(0.01)
+        sleep(0.1)
 
     if left_detect == 1 and right_detect == 0:
         MOTOR_CONTROL.left()
-        sleep(0.01)
+        sleep(0.1)
+
 
 try:
     while True:

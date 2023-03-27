@@ -61,7 +61,8 @@ class MotorControl:
 
         # Lower speed of motors
         self.motor_two.ChangeDutyCycle(self.speed - 10)
-        self.motor_one.ChangeDutyCycle(self.speed - 10)
+        self.motor_one.ChangeDutyCycle(self.speed - 8)
+        # self.motor_one.ChangeDutyCycle(self.speed - 8)
 
     def left(self):
         GPIO.output(self.in1, GPIO.HIGH)
@@ -71,7 +72,8 @@ class MotorControl:
 
         # # Lower speed of motors
         self.motor_one.ChangeDutyCycle(self.speed - 10)
-        self.motor_two.ChangeDutyCycle(self.speed - 10)
+        self.motor_two.ChangeDutyCycle(self.speed - 8)
+        # self.motor_two.ChangeDutyCycle(self.speed - 8)
 
     def set_speed(self, speed):
         self.speed = speed
