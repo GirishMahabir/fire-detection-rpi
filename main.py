@@ -58,20 +58,25 @@ def motor_speed():
                 MOTOR_CONTROL.forward()
             if left_detect == 0 and right_detect == 1:
                 MOTOR_CONTROL.right()
+                time.sleep(0.1)
             if left_detect == 1 and right_detect == 0:
                 MOTOR_CONTROL.left()
+                time.sleep(0.1)
 
 
 def frame_processing():
+    time.sleep(2)
     ret, frame = CAP.read()
+    time.sleep(2)
     fd_output = FIRE_DETECTION.process_frame(frame)
     hd_output = HAND_GESTURE_DETECTION.detect_hand_gesture(frame)
 
+    print(fd_output, hd_output)
+
     if fd_output == True:
-        servo_swing = False
         SLACK_MESSAGE.send("Fire Detected!", "danger")
         MOTOR_CONTROL.set_speed(0)
-        time.sleep(5)
+        return False        
     elif hd_output:
         MOTOR_CONTROL.set_speed(MOOTOR_HIGH_SPEED)
     elif hd_output == False:
@@ -88,25 +93,40 @@ def frame_processing():
 
 
 def camera_handling():
+    servo_swing = True
+
+    def swing_wait():
+        servo_swing = False
+        time.sleep(10)
+        while frame_processing() == False:
+            swing_wait()
+        servo_swing = True
+
     while True:
         if servo_swing:
             servo.center()
-            time.sleep(2)
-            frame_processing()
+            time.sleep(5)
+            while frame_processing() == False:
+                swing_wait()
         if servo_swing:
             servo.right()
-            time.sleep(2)
-            frame_processing()
+            time.sleep(5)
+            while frame_processing() == False:
+                swing_wait()
         if servo_swing:
             servo.center()
-            time.sleep(2)
-            frame_processing()
+            time.sleep(5)
+            while frame_processing() == False:
+                swing_wait()
         if servo_swing:
             servo.left()
-            time.sleep(2)
-            frame_processing()
+            time.sleep(5)
+            while frame_processing() == False:
+                swing_wait()
         else:
-            frame_processing()
+            while frame_processing() == False:
+                swing_wait()
+
 
 
 def main():
@@ -114,10 +134,14 @@ def main():
         threading.Thread(target=motor_speed).start()
         threading.Thread(target=camera_handling).start()
     except KeyboardInterrupt:
+        servo.center()
+        SLACK_MESSAGE.send("Exiting..Keyboard Interrupt Detected!", "warning")
+
         for i in threading.enumerate():
             if i.name != 'MainThread':
                 print(i.name)
                 i._stop()
+
         print("Exiting Main Thread")
         GPIO.cleanup()
         CAP.release()
