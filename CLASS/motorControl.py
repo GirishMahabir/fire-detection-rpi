@@ -30,24 +30,16 @@ class MotorControl:
         self.motor_two.start(self.speed)
 
     def forward(self):
-        self.set_speed(self.speed)
         GPIO.output(self.in1, GPIO.HIGH)
         GPIO.output(self.in2, GPIO.LOW)
         GPIO.output(self.in3, GPIO.HIGH)
         GPIO.output(self.in4, GPIO.LOW)
 
-        # set speed of both motors
-        self.set_speed(self.speed)
-
     def reverse(self):
-        self.set_speed(self.speed)
         GPIO.output(self.in1, GPIO.LOW)
         GPIO.output(self.in2, GPIO.HIGH)
         GPIO.output(self.in3, GPIO.LOW)
         GPIO.output(self.in4, GPIO.HIGH)
-
-        # set speed of both motors
-        self.set_speed(self.speed)
 
     def stop(self):
         self.motor_one.stop()
@@ -59,23 +51,29 @@ class MotorControl:
         GPIO.output(self.in3, GPIO.HIGH)
         GPIO.output(self.in4, GPIO.LOW)
 
-        # Lower speed of motors
-        self.motor_two.ChangeDutyCycle(self.speed - 10)
-        self.motor_one.ChangeDutyCycle(self.speed - 8)
-        # self.motor_one.ChangeDutyCycle(self.speed - 8)
-
+        try:
+            # Lower speed of motors
+            self.motor_two.ChangeDutyCycle(int(self.speed - 10))
+            self.motor_one.ChangeDutyCycle(int(self.speed - 8))
+            # self.motor_one.ChangeDutyCycle(self.speed - 8)
+        except ValueError:
+            self.set_speed(self.speed)
     def left(self):
         GPIO.output(self.in1, GPIO.HIGH)
         GPIO.output(self.in2, GPIO.LOW)
         GPIO.output(self.in3, GPIO.LOW)
         GPIO.output(self.in4, GPIO.HIGH)
-
-        # # Lower speed of motors
-        self.motor_one.ChangeDutyCycle(self.speed - 10)
-        self.motor_two.ChangeDutyCycle(self.speed - 8)
-        # self.motor_two.ChangeDutyCycle(self.speed - 8)
-
+        
+        try:
+            #Lower speed of motors
+            self.motor_one.ChangeDutyCycle(int(self.speed - 10))
+            self.motor_two.ChangeDutyCycle(int(self.speed - 8))
+            # self.motor_two.ChangeDutyCycle(self.speed - 8)
+        except ValueError:
+            self.set_speed(self.speed)
+            
     def set_speed(self, speed):
+        print("Setting speed to: " + str(speed))
         self.speed = speed
         self.motor_one.ChangeDutyCycle(self.speed)
         self.motor_two.ChangeDutyCycle(self.speed)

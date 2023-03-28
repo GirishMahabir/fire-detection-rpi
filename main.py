@@ -2,35 +2,41 @@ from gpiozero import LineSensor
 from CLASS.motorControl import MotorControl
 from CLASS.servoControl import ServoControl
 from CLASS.ultrasonicControl import UltrasonicData
-# from CLASS.fireDetection import FireDetection
-# from CLASS.handGestureDetection import HandGestureDetection
+from CLASS.fireDetection import FireDetection
+from CLASS.handGestureDetection import HandGestureDetection
 from CLASS.slackIntegration import SlackMessage
 import RPi.GPIO as GPIO
-import time
+from time import sleep
+import datetime as dt
 import toml
 import cv2
 import threading
 
-THREAD_LOCK = threading.Lock()
+GPIO.setmode(GPIO.BCM)
 
-left_sensor = LineSensor(17)
-right_sensor = LineSensor(27)
+PROG_TIME = dt.datetime.now().second
+
+LEFT_SENSOR = LineSensor(17)
+RIGHT_SENSOR = LineSensor(27)
+
+GPIO.setmode(GPIO.BCM)
 
 # Create an instance of the motor control class
 MOTOR_CONTROL = MotorControl(24, 23, 25, 26, 19, 13)
 MOTOR_NORMAL_SPEED = 60
 MOOTOR_HIGH_SPEED = 65
 MOTOR_CONTROL.set_speed(MOTOR_NORMAL_SPEED)
+MOTOR_ON_WHEEL_TIME = 12
 
 # Create an instance of the ultrasonic sensor class
 ULTRASONIC_SENSOR = UltrasonicData(echo=20, trigger=21)
 
 # Create an instance of the fire detection class
-#FIRE_DETECTION = FireDetection("DATASET/Models/candle.h5")
+FIRE_DETECTION = FireDetection("DATASET/Models/candle.h5")
 
 # Create an instance of the hand gesture detection class
-#HAND_GESTURE_DETECTION = HandGestureDetection()
-HAND_GESTURE_STOP_SECONDS = 10
+HAND_GESTURE_DETECTION = HandGestureDetection()
+HAND_GESTURE_STOP_SECONDS = 60
 
 # Load Config file for SLACK Token
 CONFIG = toml.load("config.toml")
@@ -41,117 +47,101 @@ SLACK_MESSAGE.send()
 # Start capturing the camera feed
 CAP = cv2.VideoCapture(0)
 
-# Servo Control
+# SERVO Control
 maxPW = (1.3+0.45)/1000
 minPW = (1.0-0.45)/1000
-#servo = ServoControl(16, minPW, maxPW)
-servo_swing = True
-OBSTACLE_DETECTED = False
+SERVO = ServoControl(16, minPW, maxPW)
+SERVO_WAIT_SECONDS = 3
 
 def detect_obs():
+    global PROG_TIME
     while True:
         if ULTRASONIC_SENSOR.get_distance() <= 10:
-            # OBSTACLE_DETECTED = True
             MOTOR_CONTROL.set_speed(0)
-            time.sleep(HAND_GESTURE_STOP_SECONDS)
-            detect_obs()
-        else:
+            sleep(5)
             MOTOR_CONTROL.set_speed(MOTOR_NORMAL_SPEED)
-
-        time.sleep(1)
-
-def motor_speed():
+            detect_obs()
+        elif (dt.datetime.now().second - PROG_TIME) >= MOTOR_ON_WHEEL_TIME:
+                MOTOR_CONTROL.set_speed(0)
+                sleep(MOTOR_ON_WHEEL_TIME)
+                PROG_TIME = dt.datetime.now().second
+                MOTOR_CONTROL.set_speed(MOTOR_NORMAL_SPEED)
+        else:
+            sleep(1)
+ 
+def motor_speed():    
+    global PROG_TIME
     while True:
-        left_detect  = int(left_sensor.value)
-        right_detect = int(right_sensor.value)
+        left_detect  = int(LEFT_SENSOR.value)
+        right_detect = int(RIGHT_SENSOR.value)
 
         if left_detect == 0 and right_detect == 0:
             MOTOR_CONTROL.forward()
-
+            if (dt.datetime.now().second - PROG_TIME) >= MOTOR_ON_WHEEL_TIME:
+                MOTOR_CONTROL.set_speed(0)
+                sleep(MOTOR_ON_WHEEL_TIME)
+                PROG_TIME = dt.datetime.now().second
+                MOTOR_CONTROL.set_speed(MOTOR_NORMAL_SPEED)
         if left_detect == 0 and right_detect == 1:
             MOTOR_CONTROL.right()
-            time.sleep(0.15)
-            
+            sleep(0.15)
         if left_detect == 1 and right_detect == 0:
             MOTOR_CONTROL.left()
-            time.sleep(0.15)
-
+            sleep(0.15)
+        
 def frame_processing():
-    # time.sleep(2)
-    ret, frame = CAP.read()
-    fd_output = FIRE_DETECTION.process_frame(frame)
-    hd_output = HAND_GESTURE_DETECTION.detect_hand_gesture(frame)
+    # sleep(2)        
+    if (dt.datetime.now().second - PROG_TIME) <= MOTOR_ON_WHEEL_TIME:
+        ret, frame = CAP.read()
+        fd_output = FIRE_DETECTION.process_frame(frame)
+        hd_output = HAND_GESTURE_DETECTION.detect_hand_gesture(frame)
 
-    print(fd_output, hd_output)
+        print(fd_output, hd_output)
 
-    if fd_output == True:
-        SLACK_MESSAGE.send("Fire Detected!", "danger")
-        MOTOR_CONTROL.set_speed(0)
-        return False        
-    elif hd_output:
-        MOTOR_CONTROL.set_speed(MOOTOR_HIGH_SPEED)
-    elif hd_output == False:
-        # closed hand, pause the robot.
-        MOTOR_CONTROL.set_speed(0)
-        time.sleep(HAND_GESTURE_STOP_SECONDS)
-        MOTOR_CONTROL.set_speed(MOTOR_NORMAL_SPEED)
-        servo_swing = True
-    elif fd_output == False:
-        MOTOR_CONTROL.set_speed(MOTOR_NORMAL_SPEED)
-        servo_swing = True
-    else:
-        pass
+        if fd_output: # Fire detected, True
+            # Fire detected, stop the robot.
+            SLACK_MESSAGE.send("Fire Detected!", "danger")
+        
+        if hd_output == True: # Open hand detected, True
+            # open hand, increase the speed of the robot.
+            MOTOR_CONTROL.set_speed(MOOTOR_HIGH_SPEED)
 
+        if hd_output == False: # Closed hand detected, False
+            # closed hand, pause the robot for STOP_SECONDS seconds.
+            MOTOR_CONTROL.set_speed(0)
+            sleep(HAND_GESTURE_STOP_SECONDS)
+            MOTOR_CONTROL.set_speed(MOTOR_NORMAL_SPEED)
 
 def camera_handling():
-    servo_swing = True
-
-    def swing_wait():
-        servo_swing = False
-        time.sleep(10)
-        while frame_processing() == False:
-            swing_wait()
-        servo_swing = True
-
     while True:
-        if servo_swing:
-            servo.center()
-            # time.sleep(5)
-            while frame_processing() == False:
-                swing_wait()
-        if servo_swing:
-            servo.right()
-            # time.sleep(5)
-            while frame_processing() == False:
-                swing_wait()
-        if servo_swing:
-            servo.center()
-            time.sleep(5)
-            while frame_processing() == False:
-                swing_wa+it()
-        if servo_swing:
-            servo.left()
-            # time.sleep(5)
-            while frame_processing() == False:
-                swing_wait()
-        else:
-            while frame_processing() == False:
-                swing_wait()
+        SERVO.center()
+        sleep(SERVO_WAIT_SECONDS)
+        frame_processing()
+        SERVO.right()
+        sleep(SERVO_WAIT_SECONDS)
+        frame_processing()
+        SERVO.center()
+        sleep(SERVO_WAIT_SECONDS)
+        frame_processing()
+        SERVO.left()
+        sleep(SERVO_WAIT_SECONDS)
+        frame_processing()
 
 def main():
     try:
-        obstacle_thread = threading.Thread(target=detect_obs).start()
-        motor_thread = threading.Thread(target=motor_speed).start()
-        # threading.Thread(target=camera_handling).start()
+        PROG_TIME = dt.datetime.now().second
+        print(f"Starting Main Thread at {dt.datetime.now().hour}:{PROG_TIME} System Time.")
+        threading.Thread(target=detect_obs).start()
+        threading.Thread(target=motor_speed).start()
+        threading.Thread(target=camera_handling).start()
     except KeyboardInterrupt:
-        servo.center()
+        SERVO.center()
         SLACK_MESSAGE.send("Exiting..Keyboard Interrupt Detected!", "warning")
 
         for i in threading.enumerate():
-            # wait for all threads to finish
-            if i != threading.currentThread():
+            if i is not threading.current_thread():
                 i.join()
-                i.stop()
+
         print("Exiting Main Thread")
         GPIO.cleanup()
         CAP.release()
