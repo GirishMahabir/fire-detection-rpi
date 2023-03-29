@@ -73,7 +73,7 @@ class MotorControl:
             self.set_speed(self.speed)
             
     def set_speed(self, speed):
-        print("Setting speed to: " + str(speed))
+        # print("Setting speed to: " + str(speed))
         self.speed = speed
         self.motor_one.ChangeDutyCycle(self.speed)
         self.motor_two.ChangeDutyCycle(self.speed)

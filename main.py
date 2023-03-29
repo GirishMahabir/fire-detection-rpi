@@ -95,9 +95,7 @@ def frame_processing():
         ret, frame = CAP.read()
         fd_output = FIRE_DETECTION.process_frame(frame)
         hd_output = HAND_GESTURE_DETECTION.detect_hand_gesture(frame)
-
-        print(fd_output, hd_output)
-
+        #print(fd_output, hd_output)
         if fd_output: # Fire detected, True
             # Fire detected, stop the robot.
             SLACK_MESSAGE.send("Fire Detected!", "danger")
@@ -114,6 +112,7 @@ def frame_processing():
 
 def camera_handling():
     while True:
+        frame_processing()
         SERVO.center()
         sleep(SERVO_WAIT_SECONDS)
         frame_processing()
@@ -127,10 +126,10 @@ def camera_handling():
         sleep(SERVO_WAIT_SECONDS)
         frame_processing()
 
+
 def main():
     try:
         PROG_TIME = dt.datetime.now().second
-        print(f"Starting Main Thread at {dt.datetime.now().hour}:{PROG_TIME} System Time.")
         threading.Thread(target=detect_obs).start()
         threading.Thread(target=motor_speed).start()
         threading.Thread(target=camera_handling).start()
