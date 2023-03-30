@@ -14,9 +14,9 @@ class FireDetection:
 
         # Use the model to predict whether there is fire in the frame
         prediction = self.model.predict(np.expand_dims(resized, axis=0))
-        # print(prediction)
+        print(prediction)
         # label = self.firelist[np.argmax(prediction)]
-        if prediction[0][0] > 0.98:
+        if prediction[0][0] > 0.90:
             label = "FIRE"
         else:
             label = "NOT A FIRE"
