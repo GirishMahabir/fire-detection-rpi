@@ -110,21 +110,26 @@ def frame_processing():
             sleep(HAND_GESTURE_STOP_SECONDS)
             MOTOR_CONTROL.set_speed(MOTOR_NORMAL_SPEED)
 
+# def camera_handling():
+#     while True:
+#         frame_processing()
+#         SERVO.center()
+#         sleep(SERVO_WAIT_SECONDS)
+#         frame_processing()
+#         SERVO.right()
+#         sleep(SERVO_WAIT_SECONDS)
+#         frame_processing()
+#         SERVO.center()
+#         sleep(SERVO_WAIT_SECONDS)
+#         frame_processing()
+#         SERVO.left()
+#         sleep(SERVO_WAIT_SECONDS)
+#         frame_processing()
+
 def camera_handling():
     while True:
         frame_processing()
-        SERVO.center()
         sleep(SERVO_WAIT_SECONDS)
-        frame_processing()
-        SERVO.right()
-        sleep(SERVO_WAIT_SECONDS)
-        frame_processing()
-        SERVO.center()
-        sleep(SERVO_WAIT_SECONDS)
-        frame_processing()
-        SERVO.left()
-        sleep(SERVO_WAIT_SECONDS)
-        frame_processing()
 
 
 def main():
@@ -132,7 +137,7 @@ def main():
         PROG_TIME = dt.datetime.now().second
         threading.Thread(target=detect_obs).start()
         threading.Thread(target=motor_speed).start()
-        # threading.Thread(target=camera_handling).start()
+        threading.Thread(target=camera_handling).start()
     except KeyboardInterrupt:
         SERVO.center()
         SLACK_MESSAGE.send("Exiting..Keyboard Interrupt Detected!", "warning")
