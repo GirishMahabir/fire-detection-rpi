@@ -32,10 +32,10 @@ MOTOR_ON_WHEEL_TIME = 12
 ULTRASONIC_SENSOR = UltrasonicData(echo=20, trigger=21)
 
 # Create an instance of the fire detection class
-FIRE_DETECTION = FireDetection("DATASET/Models/candle.h5")
+# FIRE_DETECTION = FireDetection("DATASET/Models/candle.h5")
 
 # Create an instance of the hand gesture detection class
-HAND_GESTURE_DETECTION = HandGestureDetection()
+# HAND_GESTURE_DETECTION = HandGestureDetection()
 HAND_GESTURE_STOP_SECONDS = 60
 
 # Load Config file for SLACK Token
@@ -132,7 +132,7 @@ def main():
         PROG_TIME = dt.datetime.now().second
         threading.Thread(target=detect_obs).start()
         threading.Thread(target=motor_speed).start()
-        threading.Thread(target=camera_handling).start()
+        # threading.Thread(target=camera_handling).start()
     except KeyboardInterrupt:
         SERVO.center()
         SLACK_MESSAGE.send("Exiting..Keyboard Interrupt Detected!", "warning")

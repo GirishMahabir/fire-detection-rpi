@@ -99,14 +99,14 @@ if __name__ == '__main__':
     # TEST MOTOR CONTROL
     #motor_control.reverse()
     #sleep(5)
-    motor_control.forward()
-    sleep(5)
+    # motor_control.forward()
+    # sleep(5)
  
 
     # TEST MOTOR DIRECTION
-    # motor_control.set_speed(50)
-    # motor_control.forward()
-    # sleep(10)
+    motor_control.set_speed(60)
+    motor_control.forward()
+    sleep(10)
     # motor_control.right()
     # sleep(10)
     # motor_control.left()
