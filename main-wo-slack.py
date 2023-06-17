@@ -129,6 +129,10 @@ def camera_handling():
         sleep(SERVO_WAIT_SECONDS)
         frame_processing()
 
+# def camera_handling():
+#     while True:
+#         frame_processing()
+#         sleep(SERVO_WAIT_SECONDS)
 
 def main():
     try:

@@ -5,9 +5,9 @@ keras
 imageai
 matplotlib
 sklearn
-mediapipe
+# mediapipe
 pandas
 protobuf
-object_detection
+# object_detection
 slack_sdk
 toml
