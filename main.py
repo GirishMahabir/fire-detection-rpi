@@ -32,10 +32,10 @@ MOTOR_ON_WHEEL_TIME = 12
 ULTRASONIC_SENSOR = UltrasonicData(echo=20, trigger=21)
 
 # Create an instance of the fire detection class
-# FIRE_DETECTION = FireDetection("DATASET/Models/candle.h5")
+FIRE_DETECTION = FireDetection("DATASET/Models/candle.h5")
 
 # Create an instance of the hand gesture detection class
-# HAND_GESTURE_DETECTION = HandGestureDetection()
+HAND_GESTURE_DETECTION = HandGestureDetection()
 HAND_GESTURE_STOP_SECONDS = 60
 
 # Load Config file for SLACK Token
@@ -98,7 +98,7 @@ def frame_processing():
         #print(fd_output, hd_output)
         if fd_output: # Fire detected, True
             # Fire detected, stop the robot.
-            SLACK_MESSAGE.send("Fire Detected!", "danger")
+            SLACK_MESSAGE.send("Fire Detected!", "danger", frame)
         
         if hd_output == True: # Open hand detected, True
             # open hand, increase the speed of the robot.
@@ -110,27 +110,21 @@ def frame_processing():
             sleep(HAND_GESTURE_STOP_SECONDS)
             MOTOR_CONTROL.set_speed(MOTOR_NORMAL_SPEED)
 
-# def camera_handling():
-#     while True:
-#         frame_processing()
-#         SERVO.center()
-#         sleep(SERVO_WAIT_SECONDS)
-#         frame_processing()
-#         SERVO.right()
-#         sleep(SERVO_WAIT_SECONDS)
-#         frame_processing()
-#         SERVO.center()
-#         sleep(SERVO_WAIT_SECONDS)
-#         frame_processing()
-#         SERVO.left()
-#         sleep(SERVO_WAIT_SECONDS)
-#         frame_processing()
-
 def camera_handling():
     while True:
         frame_processing()
+        SERVO.center()
         sleep(SERVO_WAIT_SECONDS)
-
+        frame_processing()
+        SERVO.right()
+        sleep(SERVO_WAIT_SECONDS)
+        frame_processing()
+        SERVO.center()
+        sleep(SERVO_WAIT_SECONDS)
+        frame_processing()
+        SERVO.left()
+        sleep(SERVO_WAIT_SECONDS)
+        frame_processing()
 
 def main():
     try:
